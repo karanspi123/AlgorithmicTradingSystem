@@ -1,6 +1,7 @@
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import StratifiedShuffleSplit, GridSearchCV
+from sklearn.preprocessing import StandardScaler
 import joblib
 
 def train_classification_model(input_file, model_output_path):
@@ -8,22 +9,41 @@ def train_classification_model(input_file, model_output_path):
     data = pd.read_csv(input_file)
 
     # Define features and target for classification
-    X = data[['Open', 'High', 'Low', 'Volume', 'SMA9', 'SMA21', 'SMA220', 'EMA_Cross']]
+    features = ['Open', 'High', 'Low', 'Volume', 'SMA9', 'SMA21', 'SMA220', 'EMA_Cross']
+    X = data[features]
     y = data['Target_Reached']  # Target variable: 1 if target price is reached, else 0
 
-    # Split data into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    # Split data into training and testing sets using stratified sampling
+    strat_split = StratifiedShuffleSplit(n_splits=1, test_size=0.2, random_state=42)
+    for train_index, test_index in strat_split.split(X, y):
+        X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+        y_train, y_test = y.iloc[train_index], y.iloc[test_index]
 
-    # Initialize and train the classification model
-    classifier = RandomForestClassifier()
-    classifier.fit(X_train, y_train)
+    # Standardize the features
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(X_train)
+    X_test = scaler.transform(X_test)
 
-    # Evaluate model performance (optional)
-    accuracy = classifier.score(X_test, y_test)
+    # Initialize and train the classification model with hyperparameter tuning
+    classifier = RandomForestClassifier(n_jobs=-1)
+    param_grid = {
+        'n_estimators': [100, 200, 300],
+        'max_depth': [10, 20, 30],
+        'min_samples_split': [2, 5, 10],
+        'min_samples_leaf': [1, 2, 4]
+    }
+    grid_search = GridSearchCV(estimator=classifier, param_grid=param_grid, cv=3, n_jobs=-1, verbose=2)
+    grid_search.fit(X_train, y_train)
+
+    # Get the best model
+    best_classifier = grid_search.best_estimator_
+
+    # Evaluate model performance
+    accuracy = best_classifier.score(X_test, y_test)
     print(f"Classification Model Accuracy: {accuracy}")
 
     # Save the trained classification model
-    joblib.dump(classifier, model_output_path)
+    joblib.dump(best_classifier, model_output_path)
     print(f"Classification model saved to {model_output_path}")
 
 if __name__ == "__main__":

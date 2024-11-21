@@ -1,0 +1,58 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Virtual environment
+venv/
+ENV/
+env/
+.env/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Libraries
+/lib
+/lib64
+
+# Logs and database files
+*.log
+*.sql
+*.sqlite
+
+# macOS system files
+.DS_Store
+
+# IDE settings
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# Configuration files
+config.ini
+*.yaml
+*.yml
+
+# Data files
+*.csv
+*.xls
+*.xlsx
+*.json
+
+# Archive files
+*.tar
+*.zip
+*.gz
+*.rar
+
+# Temporary files
+*~
+.*.swp
+._*

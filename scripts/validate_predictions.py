@@ -14,9 +14,14 @@ def validate_predictions(predictions_file):
     mse = mean_squared_error(data['Close'], data['Predicted_Close'])
     mae = mean_absolute_error(data['Close'], data['Predicted_Close'])
 
+    # Calculate variance of residuals
+    residuals = data['Close'] - data['Predicted_Close']
+    variance = residuals.var()
+
     print(f"Regression Model Evaluation:")
     print(f"- Mean Squared Error (MSE): {mse:.4f}")
     print(f"- Mean Absolute Error (MAE): {mae:.4f}")
+    print(f"- Variance of Residuals (Least Squares): {variance:.4f}")
 
     # Plot actual vs predicted closing prices
     print("Plotting Actual vs Predicted Closing Prices...")
